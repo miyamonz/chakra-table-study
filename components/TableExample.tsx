@@ -3,6 +3,7 @@ import React from "react";
 import { useTable } from "react-table";
 import makeData from "../makeData";
 
+import zip from "just-zip-it";
 const columns = [
   {
     Header: "Name",
@@ -41,31 +42,59 @@ const columns = [
 ];
 
 export function TableExample() {
-  const data = React.useMemo(() => makeData(20), []);
+  const data = React.useMemo(() => makeData(3), []);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({
       columns,
       data,
     });
+  const headerGroupColumns = headerGroups.map((headerGroup) => {
+    const props = headerGroup.getHeaderGroupProps();
+    console.log("headergroup", props);
+
+    const headers = headerGroup.headers;
+    console.log(headers);
+    return headers.flatMap((header) => {
+      const props = header.getHeaderProps();
+      const elm = (
+        <th
+          {...header.getHeaderProps()}
+          colSpan={1}
+          rowSpan={props.colSpan}
+          role="rowheader"
+        >
+          {header.render("Header")}
+        </th>
+      );
+      return [...Array(props.colSpan).keys()].map((i) =>
+        i === 0 ? elm : null
+      );
+    });
+  });
+
+  const dataColumns = rows.map((row) => {
+    prepareRow(row);
+    return row.cells.map((cell) => {
+      return <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>;
+    });
+  });
+
+  console.log(headerGroupColumns);
+  console.log(dataColumns);
+
+  const transposedRows = zip(...headerGroupColumns, ...dataColumns);
+  console.log(transposedRows);
+  //const headers =
+  //const dataElements =
   return (
     <Table {...getTableProps()}>
-      <Thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-            ))}
-          </tr>
-        ))}
-      </Thead>
       <Tbody {...getTableBodyProps()}>
-        {rows.map((row, i) => {
-          prepareRow(row);
+        {transposedRows.map((row) => {
           return (
-            <Tr {...row.getRowProps()}>
-              {row.cells.map((cell) => {
-                return <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>;
+            <Tr>
+              {row.map((cell) => {
+                return cell;
               })}
             </Tr>
           );

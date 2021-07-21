@@ -2,7 +2,7 @@ import React from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { HStack, Text, Spacer, Flex, Box } from "@chakra-ui/react";
 
-export function Header({ title }) {
+export function Header({ title }: { title: string }) {
   return (
     <HStack w="100%">
       <Text px={20}>example</Text>

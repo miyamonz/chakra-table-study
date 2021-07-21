@@ -25,8 +25,10 @@ const newPerson = () => {
   };
 };
 
-export default function makeData(...lens) {
-  const makeDataLevel = (depth = 0) => {
+type Person = ReturnType<typeof newPerson> & { subRows: Person[] | undefined };
+
+export default function makeData(...lens: number[]) {
+  const makeDataLevel = (depth = 0): Person[] => {
     const len = lens[depth];
     return range(len).map((d) => {
       return {

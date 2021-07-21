@@ -57,25 +57,26 @@ export function TableExample() {
     console.log(headers);
     return headers.flatMap((header) => {
       const props = header.getHeaderProps();
+
+      const colSpan = (props as any)?.colSpan ?? 1;
       const elm = (
         <th
           {...header.getHeaderProps()}
           colSpan={1}
-          rowSpan={props.colSpan}
+          rowSpan={colSpan}
           role="rowheader"
         >
           {header.render("Header")}
         </th>
       );
-      return [...Array(props.colSpan).keys()].map((i) =>
-        i === 0 ? elm : null
-      );
+      return [...Array(colSpan).keys()].map((i) => (i === 0 ? elm : null));
     });
   });
 
   const dataColumns = rows.map((row) => {
     prepareRow(row);
     return row.cells.map((cell) => {
+      //eslint-disable-next-line react/jsx-key
       return <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>;
     });
   });
@@ -90,8 +91,10 @@ export function TableExample() {
   return (
     <Table {...getTableProps()}>
       <Tbody {...getTableBodyProps()}>
-        {transposedRows.map((row) => {
+        {transposedRows.map((row: React.ReactNode[]) => {
+          //TODO: key
           return (
+            //eslint-disable-next-line react/jsx-key
             <Tr>
               {row.map((cell) => {
                 return cell;
